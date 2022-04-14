@@ -130,4 +130,4 @@ dmypy.json
 
 # Only for development and improving readability
 .vscode
-.pre-commit-congif.yaml
+.pre-commit-config.yaml
