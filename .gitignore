@@ -127,3 +127,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Only for development and improving readability
+.vscode
+.pre-commit-congif.yaml
