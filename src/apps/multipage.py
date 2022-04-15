@@ -1,6 +1,6 @@
-'''https://towardsdatascience.com/creating-
+"""https://towardsdatascience.com/creating-
 multipage-applications-using-streamlit-
-efficiently-b58a58134030'''
+efficiently-b58a58134030"""
 import streamlit as st
 
 
@@ -22,20 +22,13 @@ class MultiPage:
             func: Python function to render this page in Streamlit
         """
 
-        self.pages.append({
-
-                "title": title,
-                "function": func
-            })
+        self.pages.append({"title": title, "function": func})
 
     def run(self):
         # Drodown to select the page to run
         page = st.sidebar.selectbox(
-            'App Navigation',
-            self.pages,
-            format_func=lambda page: page['title']
+            "App Navigation", self.pages, format_func=lambda page: page["title"]
         )
 
         # run the app function
-        page['function']()
-
+        page["function"]()
