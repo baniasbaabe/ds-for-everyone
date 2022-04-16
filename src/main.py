@@ -1,15 +1,18 @@
-import streamlit as st
-import pandas as pd
+import os
 
-from apps import multipage, data_upload_app
+import pandas as pd
+import streamlit as st
+
+from apps import data_upload_app, multipage
 
 if __name__ == "__main__":
     st.set_option("deprecation.showfileUploaderEncoding", False)
 
-    st.title("Dat for everyone")
+    st.title("Data Science for everyone")
 
     app = multipage.MultiPage()
 
     app.add_page("Upload Data", data_upload_app.app)
 
     app.run()
+
