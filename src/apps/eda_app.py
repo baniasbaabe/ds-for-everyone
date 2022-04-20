@@ -1,6 +1,7 @@
 import os
 
 import pandas as pd
+import numpy as np
 import streamlit as st
 import pandas_profiling
 
@@ -18,3 +19,7 @@ def app():
         pr = data.profile_report()
 
         st_profile_report(pr)
+
+        fig = make_distplot(data, list(data.select_dtypes(include = np.number).columns)[0])
+        st.plotly_chart(fig)
+
