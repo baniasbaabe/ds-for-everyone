@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import streamlit as st
 from .utils.utils import get_file_path
+from preprocessing import feature_drop 
 
 def app():
     if "uploaded_file.csv" not in os.listdir(get_file_path(["..", "..", "data"])):
@@ -27,21 +28,20 @@ def app():
         else:
             pass
         
-        st.write("Do you want to drop highly correlated numerical features?")
-        agree_var_threshold = st.checkbox("Yes")
-        if agree_var_threshold:
-            cor_matrix = data.select_dtypes(include = np.number).corr().abs()
-            min_variance_to_drop = st.slider("Variance", 0.0, 0.99, 0.01)
-            len_before = len(data.columns)
-            upper_tri = cor_matrix.where(np.triu(np.ones(cor_matrix.shape),k=1).astype(np.bool))
-            
-            to_drop = [column for column in upper_tri.columns if any(upper_tri[column] > min_variance_to_drop)]
-            
-            if st.button("Drop"):
-                data = data.drop(to_drop, axis = 1)
+        if data.select_dtypes(include = np.number).columns:
+            st.write("Do you want to drop highly correlated numerical features?")
+            agree_min_corr = st.checkbox("Yes")
+            if agree_min_corr:
+                min_corr = st.slider("Minimum Correlation to drop feature", 0.0, 0.99, 0.01)
+                corr_matrix = feature_drop.calc_corr_matrix(data)
+                columns_to_drop = feature_drop.drop_high_corr_feature(corr_matrix, min_corr)
 
-                st.write(f"{len_before - len(data.columns)} columns dropped")
-                st.write(data.columns)
+                if st.button("Drop features"):
+                    len_before_drop = len(data.columns)
+                    data_dropped = data.drop(columns_to_drop, axis = 1).copy()
+                    len_after_drop = len(data_dropped.columns)
+
+                    st.write(f"Columns dropped: {len_before_drop - len_after_drop}")
 
 
 
