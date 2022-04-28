@@ -1,8 +1,8 @@
 import numpy as np
 from sklearn.model_selection import StratifiedKFold
-from sklearn.ensemble import AdaBoostClassifier
-from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import AdaBoostClassifier, RandomForestClassifier
 from sklearn.metrics import log_loss
+import xgboost as xgb
 
 def objective(trial, X, y, pipeline_func):
 
@@ -11,22 +11,31 @@ def objective(trial, X, y, pipeline_func):
 
     classifier_name = trial.suggest_categorical(
         "classifier",
-        ["KNN", "AdaBoost"]
+        ["RF", "AdaBoost", "XGBoost"]
     )
 
-    if classifier_name == "KNN":
+    if classifier_name == "RF":
         param_grid = {
-            "n_neighbors": trial.suggest_int(
-                "n_neighbors",
-                3, 7, step = 2
+            "n_estimators": trial.suggest_int(
+                "n_estimators",
+                50, 500, step = 50
             ),
-            "weights": trial.suggest_categorical(
-                "weights",
-                ["uniform", "distance"]
-            )
+            "max_depth": trial.suggest_int(
+                "max_depth",
+                3, 10
+            ),
+            "min_samples_split": trial.suggest_int(
+                "min_samples_split",
+                3, 30, step = 2
+            ),
+            "max_features": trial.suggest_categorical(
+                "max_features", 
+                ["auto", "sqrt", "log2"]
+            ),
+            "n_jobs": -1
         }
 
-        model = KNeighborsClassifier(**param_grid)
+        model = RandomForestClassifier(**param_grid)
     elif classifier_name == "AdaBoost":
         param_grid = {
             "n_estimators": trial.suggest_int(
@@ -42,8 +51,19 @@ def objective(trial, X, y, pipeline_func):
                 step = 0.01
             )
         }
-
         model = AdaBoostClassifier(**param_grid)
+
+    elif classifier_name == "XGBoost":
+        param_grid = {
+            "verbosity": 0,
+            "objective": "binary:logistic",
+            # use exact for small dataset.
+            "tree_method": "exact",
+            # defines booster, gblinear for linear functions.
+            "booster": trial.suggest_categorical("booster", ["gbtree", "gblinear", "dart"]),
+        }
+
+        model = xgb.XGBClassifier(**param_grid)
 
     n_split = 3
 
