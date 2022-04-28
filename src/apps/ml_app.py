@@ -1,9 +1,17 @@
 import os
+import optuna
 import pandas as pd
 import numpy as np
 import streamlit as st
+from sklearn.preprocessing import LabelEncoder
 from .utils.utils import get_file_path
-from preprocessing import feature_drop 
+from .preprocessing import feature_drop, preprocess_pipeline
+from .optimizer import optimize_classification, optimize_regression
+
+optimizer_collection = {
+    "Classification": optimize_classification.objective,
+    # "Regression": optimize_regression.objective,
+}
 
 def app():
     if "uploaded_file.csv" not in os.listdir(get_file_path(["..", "..", "data"])):
@@ -23,12 +31,9 @@ def app():
             ("Classification", "Regression")
         )
 
-        if type_of_ml_problem == "Classification":
-            pass
-        else:
-            pass
+        optimizer = optimizer_collection[type_of_ml_problem]
         
-        if data.select_dtypes(include = np.number).columns:
+        if list(data.select_dtypes(include = np.number).columns):
             st.write("Do you want to drop highly correlated numerical features?")
             agree_min_corr = st.checkbox("Yes")
             if agree_min_corr:
@@ -42,10 +47,16 @@ def app():
                     len_after_drop = len(data_dropped.columns)
 
                     st.write(f"Columns dropped: {len_before_drop - len_after_drop}")
+        
+        if st.button("Run Machine Learning Algorithms"):
+            y = data.loc[:, target].copy()
+            X = data.loc[:, data.columns != target].copy()
 
+            le = LabelEncoder()
+            y = le.fit_transform(y)
 
+            study = optuna.create_study(direction = "minimize")
+            func = lambda trial: optimizer(trial, X, y, preprocess_pipeline.full_pipeline)
+            study.optimize(func, n_trials = 3, show_progress_bar = False)
 
-
-
-
-
+            print(study.best_params)
