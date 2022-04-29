@@ -25,11 +25,23 @@ def app():
 
         current_type = data.loc[:, data.columns == name].dtypes[0]
 
-        column_options = ['category','object', "bool", "int64", "float64", "datetime64", "timedelta[ns]"]
+        column_options = [
+            "category",
+            "object",
+            "bool",
+            "int64",
+            "float64",
+            "datetime64",
+            "timedelta[ns]",
+        ]
         current_index = column_options.index(current_type)
 
-        select_dtype = col2.selectbox("Select Column Type", options=column_options, index = current_index)
+        select_dtype = col2.selectbox(
+            "Select Column Type", options=column_options, index=current_index
+        )
 
         if st.button("Change Column Type"):
             data[name] = data[name].astype(select_dtype)
-            data.to_csv(get_file_path(["..", ".." ,"data", "uploaded_file.csv"]), index = False)
+            data.to_csv(
+                get_file_path(["..", "..", "data", "uploaded_file.csv"]), index=False
+            )

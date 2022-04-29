@@ -3,7 +3,7 @@ import os
 import pandas as pd
 import streamlit as st
 
-from apps import data_upload_app, configurations_app, eda_app, ml_app, multipage
+from apps import configurations_app, data_upload_app, eda_app, ml_app, multipage
 
 if __name__ == "__main__":
     st.set_option("deprecation.showfileUploaderEncoding", False)

@@ -1,12 +1,13 @@
 import os
 
-import pandas as pd
 import numpy as np
-import streamlit as st
+import pandas as pd
 import pandas_profiling
+import streamlit as st
+from streamlit_pandas_profiling import st_profile_report
 
 from .utils.utils import get_file_path
-from streamlit_pandas_profiling import st_profile_report
+
 
 def app():
     st.title("EDA")

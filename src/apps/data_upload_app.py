@@ -21,4 +21,4 @@ def app():
     df = read_file(uploaded_file, file_type)
 
     path = get_file_path(["..", "..", "data", "uploaded_file.csv"])
-    df.to_csv(path, index = False)
+    df.to_csv(path, index=False)
