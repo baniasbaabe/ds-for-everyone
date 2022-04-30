@@ -7,7 +7,12 @@ import pandas as pd
 import shap
 import streamlit as st
 import xgboost as xgb
-from sklearn.ensemble import AdaBoostClassifier, RandomForestClassifier, AdaBoostRegressor, RandomForestRegressor
+from sklearn.ensemble import (
+    AdaBoostClassifier,
+    AdaBoostRegressor,
+    RandomForestClassifier,
+    RandomForestRegressor,
+)
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from yellowbrick.classifier.classification_report import classification_report
@@ -23,9 +28,9 @@ from .utils.utils import get_file_path
 optuna.logging.set_verbosity(optuna.logging.CRITICAL)
 
 models_classification = {
-    "XGBoost": xgb.XGBRegressor,
-    "RandomForest": RandomForestRegressor,
-    "AdaBoost": AdaBoostRegressor,
+    "XGBoost": xgb.XGBClassifier,
+    "RandomForest": RandomForestClassifier,
+    "AdaBoost": AdaBoostClassifier,
 }
 
 models_regression = {
@@ -101,7 +106,9 @@ def app():
             func = lambda trial: optimizer(
                 trial, X_train, y_train, preprocess_pipeline.full_pipeline
             )
-            study.optimize(func, n_trials=4, show_progress_bar=True)
+
+            with st.spinner("Finding a optimal model, that needs some time..."):
+                study.optimize(func, n_trials=4)
             st.write(study.best_params)
             if type_of_ml_problem == "Classification":
                 model = models_classification[study.best_params["model_name"]]
@@ -121,44 +128,58 @@ def app():
             pipeline.fit(X_train, y_train)
 
             if type_of_ml_problem == "Classification":
-                st.write("Classification Report")
-                fig, ax = plt.subplots(figsize=(10, 10))
-                classification_report(
-                    pipeline, X_train, y_train, X_test, y_test, ax=ax, classes=le.classes_
-                )
-                st.pyplot(fig)
-
-                st.write("Confusion Matrix")
-                fig, ax = plt.subplots(figsize=(10, 10))
-                confusion_matrix(
-                    pipeline, X_train, y_train, X_test, y_test, ax=ax, classes=le.classes_
-                )
-                st.pyplot(fig)
-
-                st.write("ROC")
-                fig, ax = plt.subplots(figsize=(10, 10))
-                is_binary = True if pd.Series(y).nunique() == 2 else False
-                roc_auc(
-                    pipeline,
-                    X_train,
-                    y_train,
-                    X_test,
-                    y_test,
-                    ax=ax,
-                    classes=le.classes_,
-                    binary=is_binary,
-                )
-                st.pyplot(fig)
+                with st.spinner("Create plot, that needs some time..."):
+                    st.write("Classification Report")
+                    fig, ax = plt.subplots(figsize=(10, 10))
+                    classification_report(
+                        pipeline,
+                        X_train,
+                        y_train,
+                        X_test,
+                        y_test,
+                        ax=ax,
+                        classes=le.classes_,
+                    )
+                    st.pyplot(fig)
+                with st.spinner("Create plot, that needs some time..."):
+                    st.write("Confusion Matrix")
+                    fig, ax = plt.subplots(figsize=(10, 10))
+                    confusion_matrix(
+                        pipeline,
+                        X_train,
+                        y_train,
+                        X_test,
+                        y_test,
+                        ax=ax,
+                        classes=le.classes_,
+                    )
+                    st.pyplot(fig)
+                with st.spinner("Create plot, that needs some time..."):
+                    st.write("ROC")
+                    fig, ax = plt.subplots(figsize=(10, 10))
+                    is_binary = pd.Series(y).nunique() == 2
+                    roc_auc(
+                        pipeline,
+                        X_train,
+                        y_train,
+                        X_test,
+                        y_test,
+                        ax=ax,
+                        classes=le.classes_,
+                        binary=is_binary,
+                    )
+                    st.pyplot(fig)
             else:
-                st.write("Prediction Error")
-                fig, ax = plt.subplots(figsize=(10, 10))
-                prediction_error(pipeline, X_train, y_train, X_test, y_test, ax = ax)
-                st.pyplot(fig)
-
-                st.write("Residuals Plot")
-                fig, ax = plt.subplots(figsize=(10, 10))
-                residuals_plot(pipeline, X_train, y_train, X_test, y_test, ax = ax)
-                st.pyplot(fig)
+                with st.spinner("Create plot, that needs some time..."):
+                    st.write("Prediction Error")
+                    fig, ax = plt.subplots(figsize=(10, 10))
+                    prediction_error(pipeline, X_train, y_train, X_test, y_test, ax=ax)
+                    st.pyplot(fig)
+                with st.spinner("Create plot, that needs some time..."):
+                    st.write("Residuals Plot")
+                    fig, ax = plt.subplots(figsize=(10, 10))
+                    residuals_plot(pipeline, X_train, y_train, X_test, y_test, ax=ax)
+                    st.pyplot(fig)
             # st.write("Interpret Model with SHAP")
             # fig = plt.figure()
             # observations = pipeline["preprocessor"].transform(X_test)
