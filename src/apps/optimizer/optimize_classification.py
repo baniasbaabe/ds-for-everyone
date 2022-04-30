@@ -30,20 +30,47 @@ def objective(trial, X, y, pipeline_func):
     elif classifier_name == "AdaBoost":
         param_grid = {
             "n_estimators": trial.suggest_int("n_estimators", 50, 500, step=50),
-            "learning_rate": trial.suggest_float("learning_rate", 0.01, 0.8, step=0.01),
+            "learning_rate": trial.suggest_float("learning_rate", 0.01, 0.8, step=0.05),
         }
         model = AdaBoostClassifier(**param_grid)
 
     elif classifier_name == "XGBoost":
         param_grid = {
             "verbosity": 0,
-            # use exact for small dataset.
             "tree_method": "exact",
-            # defines booster, gblinear for linear functions.
             "booster": trial.suggest_categorical(
                 "booster", ["gbtree", "gblinear", "dart"]
             ),
+            "lambda": trial.suggest_float("lambda", 1e-8, 1.0, log=True),
+            "alpha": trial.suggest_float("alpha", 1e-8, 1.0, log=True),
+            "subsample": trial.suggest_float("subsample", 0.65, 1.0, step=0.05),
+            "colsample_bytree": trial.suggest_float("colsample_bytree", 0.5, 1.0),
         }
+
+        if param_grid["booster"] in ["gbtree", "dart"]:
+            param_grid["max_depth"] = trial.suggest_int("max_depth", 3, 10, step=2)
+            param_grid["min_child_weight"] = trial.suggest_int(
+                "min_child_weight", 2, 10
+            )
+            param_grid["eta"] = trial.suggest_float("eta", 1e-8, 1.0, log=True)
+            param_grid["gamma"] = trial.suggest_float("gamma", 1e-8, 1.0, log=True)
+            param_grid["grow_policy"] = trial.suggest_categorical(
+                "grow_policy", ["depthwise", "lossguide"]
+            )
+
+        if param_grid["booster"] == "dart":
+            param_grid["sample_type"] = trial.suggest_categorical(
+                "sample_type", ["uniform", "weighted"]
+            )
+            param_grid["normalize_type"] = trial.suggest_categorical(
+                "normalize_type", ["tree", "forest"]
+            )
+            param_grid["rate_drop"] = trial.suggest_float(
+                "rate_drop", 1e-8, 1.0, log=True
+            )
+            param_grid["skip_drop"] = trial.suggest_float(
+                "skip_drop", 1e-8, 1.0, log=True
+            )
 
         model = xgb.XGBClassifier(**param_grid)
 
