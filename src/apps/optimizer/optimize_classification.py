@@ -37,7 +37,6 @@ def objective(trial, X, y, pipeline_func):
     elif classifier_name == "XGBoost":
         param_grid = {
             "verbosity": 0,
-            "objective": "binary:logistic",
             # use exact for small dataset.
             "tree_method": "exact",
             # defines booster, gblinear for linear functions.
