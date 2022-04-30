@@ -1,9 +1,0 @@
-*.psd
-*.pdf
-/tests
-/spec
-/pyproject.toml
-/poety.lock
-/README.md
-/LICENSE
-./heroku
