@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import optuna
 import pandas as pd
-import shap
 import streamlit as st
 import xgboost as xgb
 from sklearn.ensemble import (
@@ -46,17 +45,14 @@ optimizer_collection = {
 
 
 def app():
-    if "uploaded_file.csv" not in os.listdir(get_file_path(["..", "..", "data"])):
+    if "uploaded_df" not in st.session_state:
         st.write("You have to upload your data in 'Upload data' section")
-    elif (
-        pd.read_csv(get_file_path(["..", "..", "data", "uploaded_file.csv"])).shape[1]
-        < 2
-    ):
+    elif st.session_state["uploaded_df"].shape[1] < 2:
         st.write(
             "Your file doesn't contain 2 columns or more. Upload a new appropiate file."
         )
     else:
-        data = pd.read_csv(get_file_path(["..", "..", "data", "uploaded_file.csv"]))
+        data = st.session_state["uploaded_df"].copy()
 
         st.write("Select the variable you want to be predicted (Y)")
         target = st.selectbox(
@@ -180,9 +176,3 @@ def app():
                     fig, ax = plt.subplots(figsize=(10, 10))
                     residuals_plot(pipeline, X_train, y_train, X_test, y_test, ax=ax)
                     st.pyplot(fig)
-            # st.write("Interpret Model with SHAP")
-            # fig = plt.figure()
-            # observations = pipeline["preprocessor"].transform(X_test)
-            # shap_values = shap.KernelExplainer(pipeline["model"].predict_proba, observations).shap_values(observations)
-            # shap.summary_plot(shap_values, observations, plot_type = "bar")
-            # st.pyplot(fig)

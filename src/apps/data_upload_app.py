@@ -1,4 +1,5 @@
 import os
+from turtle import up
 from typing import Any, List
 
 import pandas as pd
@@ -17,8 +18,11 @@ def app():
     if not uploaded_file:
         return
 
-    file_type = get_file_type(uploaded_file)
-    df = read_file(uploaded_file, file_type)
+    # file_type = get_file_type(uploaded_file)
+    df = pd.read_csv(uploaded_file)
 
-    path = get_file_path(["..", "..", "data", "uploaded_file.csv"])
-    df.to_csv(path, index=False)
+    # path = get_file_path(["..", "..", "data", "uploaded_file.csv"])
+    # df.to_csv(path, index=False)
+
+    if "uploaded_df" not in st.session_state:
+        st.session_state["uploaded_df"] = df
