@@ -12,7 +12,7 @@ def objective(trial, X, y, pipeline_func):
     num_cols = X.select_dtypes(include=np.number).columns.to_list()
 
     classifier_name = trial.suggest_categorical(
-        "classifier_name", ["RandomForest", "AdaBoost", "XGBoost"]
+        "model_name", ["RandomForest", "AdaBoost", "XGBoost"]
     )
 
     if classifier_name == "RandomForest":
