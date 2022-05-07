@@ -11,11 +11,11 @@ def objective(trial, X, y, pipeline_func):
     cat_cols = X.select_dtypes(include=["object", "category"]).columns.to_list()
     num_cols = X.select_dtypes(include=np.number).columns.to_list()
 
-    classifier_name = trial.suggest_categorical(
+    model_name = trial.suggest_categorical(
         "model_name", ["RandomForest", "AdaBoost", "XGBoost"]
     )
 
-    if classifier_name == "RandomForest":
+    if model_name == "RandomForest":
         param_grid = {
             "n_estimators": trial.suggest_int("n_estimators", 50, 500, step=50),
             "max_depth": trial.suggest_int("max_depth", 3, 10),
@@ -27,14 +27,14 @@ def objective(trial, X, y, pipeline_func):
         }
 
         model = RandomForestRegressor(**param_grid)
-    elif classifier_name == "AdaBoost":
+    elif model_name == "AdaBoost":
         param_grid = {
             "n_estimators": trial.suggest_int("n_estimators", 50, 500, step=50),
             "learning_rate": trial.suggest_float("learning_rate", 0.01, 0.8, step=0.01),
         }
         model = AdaBoostRegressor(**param_grid)
 
-    elif classifier_name == "XGBoost":
+    elif model_name == "XGBoost":
         param_grid = {
             "verbosity": 0,
             "tree_method": "exact",
