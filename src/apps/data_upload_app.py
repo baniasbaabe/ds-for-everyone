@@ -24,5 +24,6 @@ def app():
     # path = get_file_path(["..", "..", "data", "uploaded_file.csv"])
     # df.to_csv(path, index=False)
 
-    if "uploaded_df" not in st.session_state:
-        st.session_state["uploaded_df"] = df
+    #TODO: Replace df in session if a new file is uploaded
+    #if "uploaded_df" not in st.session_state:
+    st.session_state["uploaded_df"] = df
