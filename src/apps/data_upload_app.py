@@ -18,12 +18,6 @@ def app():
     if not uploaded_file:
         return
 
-    # file_type = get_file_type(uploaded_file)
     df = pd.read_csv(uploaded_file)
 
-    # path = get_file_path(["..", "..", "data", "uploaded_file.csv"])
-    # df.to_csv(path, index=False)
-
-    #TODO: Replace df in session if a new file is uploaded
-    #if "uploaded_df" not in st.session_state:
     st.session_state["uploaded_df"] = df
