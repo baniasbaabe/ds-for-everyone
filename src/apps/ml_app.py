@@ -23,6 +23,7 @@ from yellowbrick.regressor.residuals import residuals_plot
 from .optimizer import optimize_classification, optimize_regression
 from .preprocessing import feature_drop, preprocess_pipeline
 from .utils.utils import get_file_path
+from .viz.vizualisation import plot_viz_function
 
 optuna.logging.set_verbosity(optuna.logging.CRITICAL)
 
@@ -70,7 +71,7 @@ def app():
         optimizer = optimizer_collection[type_of_ml_problem]
 
         if list(data.select_dtypes(include=np.number).columns):
-            st.write("Do you want to drop highly correlated numerical features?")
+            st.write("Do you want to drop correlated numerical features?")
             agree_min_corr = st.checkbox("Yes")
             if agree_min_corr:
                 min_corr = st.slider(
@@ -88,7 +89,11 @@ def app():
 
                     st.write(f"Columns dropped: {len_before_drop - len_after_drop}")
 
-        if st.button("Run Machine Learning Algorithms"):
+        iterations = st.slider("How many iterations do you want to train? (The more iterations the longer the time to find a optimal model)", 
+                1, 100, 1
+            )
+
+        if st.button("Find optimal Model"):
             y = data.loc[:, target].copy()
             X = data.loc[:, data.columns != target].copy()
             le = LabelEncoder()
@@ -104,7 +109,11 @@ def app():
             )
 
             with st.spinner("Finding a optimal model, that needs some time..."):
-                study.optimize(func, n_trials=4)
+                try:
+                    study.optimize(func, n_trials=4)
+                except Exception:
+                    st.error("There was a problem with your target variable. Check if your target variable is right")
+                    st.stop()
             st.write(study.best_params)
             if type_of_ml_problem == "Classification":
                 model = models_classification[study.best_params["model_name"]]
@@ -137,7 +146,7 @@ def app():
                         classes=le.classes_,
                     )
                     st.pyplot(fig)
-                with st.spinner("Create plot, that needs some time..."):
+                with st.spinner("Creating plot, that needs some time..."):
                     st.write("Confusion Matrix")
                     fig, ax = plt.subplots(figsize=(10, 10))
                     confusion_matrix(
@@ -150,7 +159,7 @@ def app():
                         classes=le.classes_,
                     )
                     st.pyplot(fig)
-                with st.spinner("Create plot, that needs some time..."):
+                with st.spinner("Creating plot, that needs some time..."):
                     st.write("ROC")
                     fig, ax = plt.subplots(figsize=(10, 10))
                     is_binary = pd.Series(y).nunique() == 2
@@ -166,12 +175,12 @@ def app():
                     )
                     st.pyplot(fig)
             else:
-                with st.spinner("Create plot, that needs some time..."):
+                with st.spinner("Creating plot, that needs some time..."):
                     st.write("Prediction Error")
                     fig, ax = plt.subplots(figsize=(10, 10))
                     prediction_error(pipeline, X_train, y_train, X_test, y_test, ax=ax)
                     st.pyplot(fig)
-                with st.spinner("Create plot, that needs some time..."):
+                with st.spinner("Creating plot, that needs some time..."):
                     st.write("Residuals Plot")
                     fig, ax = plt.subplots(figsize=(10, 10))
                     residuals_plot(pipeline, X_train, y_train, X_test, y_test, ax=ax)
