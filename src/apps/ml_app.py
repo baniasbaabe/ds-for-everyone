@@ -129,7 +129,8 @@ def app():
 
             pipeline = preprocess_pipeline.full_pipeline(cat_cols, num_cols, model)
 
-            pipeline.fit(X_train, y_train)
+            with st.spinner("Train final model, that needs some time..."):
+                pipeline.fit(X_train, y_train)
 
             if type_of_ml_problem == "Classification":
                 with st.spinner("Create plot, that needs some time..."):
