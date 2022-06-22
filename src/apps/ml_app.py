@@ -23,7 +23,6 @@ from yellowbrick.regressor.residuals import residuals_plot
 from .optimizer import optimize_classification, optimize_regression
 from .preprocessing import feature_drop, preprocess_pipeline
 from .utils.utils import get_file_path
-from .viz.vizualisation import plot_viz_function
 
 optuna.logging.set_verbosity(optuna.logging.CRITICAL)
 

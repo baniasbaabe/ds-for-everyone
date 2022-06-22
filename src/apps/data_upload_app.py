@@ -17,7 +17,7 @@ def app():
 
     if not uploaded_file:
         return
-
+        
     df = pd.read_csv(uploaded_file)
 
     st.session_state["uploaded_df"] = df
